@@ -10,22 +10,16 @@ MODULE_VERSION("0.1");
 static dev_t dev;
 static struct cdev cdv;
 
-static int led_open(struct inode* inode, struct file* filp) { return 0; }
-
 static ssize_t led_write(struct file* filp, const char* buf, size_t count, loff_t* pos)
 {
 	printk(KERN_INFO "led_write is called\n");
         return 1;
 }
 
-static int led_release(struct inode* inode, struct file* filp){ return 0; }
-
 static struct file_operations led_fops =
 {
 	owner   : THIS_MODULE,
 	write   : led_write,
-	open    : led_open,
-	release : led_release,
 };
 
 static int __init init_mod(void)
