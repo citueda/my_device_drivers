@@ -14,7 +14,7 @@ static dev_t dev;
 static struct cdev cdv;
 static struct class *cls = NULL;
 
-static volatile uint32_t *gpio_base = NULL;
+static volatile u32 *gpio_base = NULL;
 
 static ssize_t led_write(struct file* filp, const char* buf, size_t count, loff_t* pos)
 {
@@ -40,13 +40,13 @@ static int __init init_mod(void)
 {
 	int retval;
 
-	const uint32_t rpi_gpio_base = 0x3f000000 + 0x200000;//レジスタのベース+ GPIOのオフセット
-	const uint8_t gpio_size = 0xC0;
+	const u32 rpi_gpio_base = 0x3f000000 + 0x200000;//レジスタのベース+ GPIOのオフセット
+	const u8 gpio_size = 0xC0;
 
-	const int led = 25;
-	const int index = 0 + led/10;//0: GPFSEL0, 25: GPIO NO
-	const int shift = (led%10)*3;
-	const uint32_t mask = ~(0x7 << shift);
+	const u32 led = 25;
+	const u32 index = 0 + led/10;//0: GPFSEL0, 25: GPIO NO
+	const u32 shift = (led%10)*3;
+	const u32 mask = ~(0x7 << shift);
 
 	gpio_base = ioremap_nocache(rpi_gpio_base, gpio_size); //0xC0: gpio size
 	iowrite32((gpio_base[index] & mask) | (0x1 << shift), &gpio_base[index]);//0x1: GPF_OUTPUT
