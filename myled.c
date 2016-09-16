@@ -23,9 +23,9 @@ static ssize_t led_write(struct file* filp, const char* buf, size_t count, loff_
 		return -EFAULT;
 
 	if(c == '0')
-		gpio_base[10] = (1 << 25) & 0xffffffff; //10: GPCLR0
+		iowrite32(1 << 25, &gpio_base[10]);
 	else if(c == '1')
-		gpio_base[7] = (1 << 25) & 0xffffffff; //7: GPSET0
+		iowrite32(1 << 25, &gpio_base[7]);
 
         return 1;
 }
@@ -49,7 +49,7 @@ static int __init init_mod(void)
 	const uint32_t mask = ~(0x7 << shift);
 
 	gpio_base = ioremap_nocache(rpi_gpio_base, gpio_size); //0xC0: gpio size
-	gpio_base[index] = (gpio_base[index] & mask) | (0x1 << shift); //0x1: GPF_OUTPUT
+	iowrite32((gpio_base[index] & mask) | (0x1 << shift), &gpio_base[index]);//0x1: GPF_OUTPUT
 
 	retval =  alloc_chrdev_region(&dev, 0, 1, "led");
 	if(retval < 0){
