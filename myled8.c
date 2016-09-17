@@ -2,6 +2,7 @@
 #include <linux/fs.h>
 #include <linux/cdev.h>
 #include <linux/device.h>
+#include <asm/uaccess.h>
 
 MODULE_AUTHOR("Ryuichi Ueda");
 MODULE_DESCRIPTION("driver for LED control");
@@ -11,45 +12,20 @@ MODULE_VERSION("0.1");
 static dev_t dev;
 static struct cdev cdv;
 static struct class *cls = NULL;
-static spinlock_t spn_lock;
-static int access_num = 0;
 
 static ssize_t led_write(struct file* filp, const char* buf, size_t count, loff_t* pos)
 {
-	printk(KERN_INFO "led_write is called\n");
+	char c;
+	if(copy_from_user(&c,buf,sizeof(char)))
+		return -EFAULT;
+
+	printk(KERN_INFO "receive %c\n",c);
         return 1;
 }
 
-static int led_open(struct inode* inode, struct file* filp)
-{
-	spin_lock(&spn_lock);
-
-	if(access_num){
-		spin_unlock(&spn_lock);
-		return -EBUSY;
-	}
-
-	access_num++;
-	spin_unlock(&spn_lock);
-
-	return 0;
-}
-
-static int led_release(struct inode* inode, struct file* filp)
-{
-	spin_lock(&spn_lock);
-	access_num--;
-	spin_unlock(&spn_lock);
-
-	return 0;
-}
-
-static struct file_operations led_fops =
-{
-	owner   : THIS_MODULE,
-	write   : led_write,
-	open    : led_open,
-	release : led_release,
+static struct file_operations led_fops = {
+	.owner = THIS_MODULE,
+	.write = led_write
 };
 
 static int __init init_mod(void)

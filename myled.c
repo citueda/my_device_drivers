@@ -23,17 +23,16 @@ static ssize_t led_write(struct file* filp, const char* buf, size_t count, loff_
 		return -EFAULT;
 
 	if(c == '0')
-		iowrite32(1 << 25, &gpio_base[10]);
+		gpio_base[10] = 1 << 25;
 	else if(c == '1')
-		iowrite32(1 << 25, &gpio_base[7]);
+		gpio_base[7] = 1 << 25;
 
         return 1;
 }
 
-static struct file_operations led_fops =
-{
-	owner   : THIS_MODULE,
-	write   : led_write,
+static struct file_operations led_fops = {
+	.owner = THIS_MODULE,
+	.write = led_write
 };
 
 static int __init init_mod(void)
@@ -49,7 +48,7 @@ static int __init init_mod(void)
 	const u32 mask = ~(0x7 << shift);
 
 	gpio_base = ioremap_nocache(rpi_gpio_base, gpio_size); //0xC0: gpio size
-	iowrite32((gpio_base[index] & mask) | (0x1 << shift), &gpio_base[index]);//0x1: GPF_OUTPUT
+	gpio_base[index] = (gpio_base[index] & mask) | (0x1 << shift);//0x1: GPF_OUTPUT
 
 	retval =  alloc_chrdev_region(&dev, 0, 1, "led");
 	if(retval < 0){
