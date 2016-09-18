@@ -34,7 +34,7 @@ static int __init init_mod(void)
 	printk(KERN_INFO "%s is loaded. major:%d\n",__FILE__,MAJOR(dev));
 
 	cdev_init(&cdv, &led_fops);
-	retval = cdev_add(&cdv, MKDEV(MAJOR(dev),0), 1);
+	retval = cdev_add(&cdv, dev, 1);
 	if(retval < 0){
 		printk(KERN_ERR "cdev_add failed. major:%d, minor:0\n",MAJOR(dev));
 		return retval;

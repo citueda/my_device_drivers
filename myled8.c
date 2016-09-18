@@ -39,7 +39,7 @@ static int __init init_mod(void)
 	printk(KERN_INFO "%s is loaded. major:%d\n",__FILE__,MAJOR(dev));
 
 	cdev_init(&cdv, &led_fops);
-	retval = cdev_add(&cdv, MKDEV(MAJOR(dev),0), 1);
+	retval = cdev_add(&cdv, dev, 1);
 	if(retval < 0){
 		printk(KERN_ERR "cdev_add failed. major:%d, minor:0\n",MAJOR(dev));
 		return retval;
@@ -50,7 +50,7 @@ static int __init init_mod(void)
 		printk(KERN_ERR "class_create failed.");
 		return PTR_ERR(cls);
 	}
-	device_create(cls, NULL, MKDEV(MAJOR(dev),0), NULL, "myled0");
+	device_create(cls, NULL, dev, NULL, "myled0");
 
 	return 0;
 }
@@ -58,7 +58,7 @@ static int __init init_mod(void)
 static void __exit cleanup_mod(void)
 {
 	cdev_del(&cdv);
-	device_destroy(cls, MKDEV(MAJOR(dev),0));
+	device_destroy(cls, dev);
 	class_destroy(cls);
 	unregister_chrdev_region(dev, 1);
 	printk(KERN_INFO "%s is unloaded. major:%d\n",__FILE__,MAJOR(dev));
