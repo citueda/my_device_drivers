@@ -50,7 +50,7 @@ static int __init init_mod(void)
 	gpio_base = ioremap_nocache(rpi_gpio_base, gpio_size); //0xC0: gpio size
 	gpio_base[index] = (gpio_base[index] & mask) | (0x1 << shift);//0x1: GPF_OUTPUT
 
-	retval =  alloc_chrdev_region(&dev, 0, 1, "led");
+	retval =  alloc_chrdev_region(&dev, 0, 1, "myled");
 	if(retval < 0){
 		printk(KERN_ERR "alloc_chrdev_region failed.\n");
 		return retval;

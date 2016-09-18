@@ -24,7 +24,7 @@ static struct file_operations led_fops = {
 static int __init init_mod(void)
 {
 	int retval;
-	retval =  alloc_chrdev_region(&dev, 0, 1, "led");
+	retval =  alloc_chrdev_region(&dev, 0, 1, "myled");
 	if(retval < 0){
 		printk(KERN_ERR "alloc_chrdev_region failed.\n");
 		return retval;
