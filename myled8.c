@@ -41,7 +41,7 @@ static int __init init_mod(void)
 	cdev_init(&cdv, &led_fops);
 	retval = cdev_add(&cdv, dev, 1);
 	if(retval < 0){
-		printk(KERN_ERR "cdev_add failed. major:%d, minor:0\n",MAJOR(dev));
+		printk(KERN_ERR "cdev_add failed. major:%d, minor:%d",MAJOR(dev),MINOR(dev));
 		return retval;
 	}
 
@@ -50,7 +50,7 @@ static int __init init_mod(void)
 		printk(KERN_ERR "class_create failed.");
 		return PTR_ERR(cls);
 	}
-	device_create(cls, NULL, dev, NULL, "myled0");
+	device_create(cls, NULL, dev, NULL, "myled%d",MINOR(dev));
 
 	return 0;
 }
