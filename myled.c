@@ -39,12 +39,12 @@ static int __init init_mod(void)
 {
 	int retval;
 
+	gpio_base = ioremap_nocache(0x3f200000, 0xA0); //0x3f..:base address, 0xA0: region to map
+
 	const u32 led = 25;
 	const u32 index = led/10;//GPFSEL2
 	const u32 shift = (led%10)*3;//15bit
 	const u32 mask = ~(0x7 << shift);//11111111111111000111111111111111
-
-	gpio_base = ioremap_nocache(0x3f200000, 0xA0); //0x3f..:base address, 0xA0: region to map
 	gpio_base[index] = (gpio_base[index] & mask) | (0x1 << shift);//001: output flag
 	//11111111111111001111111111111111
 	
