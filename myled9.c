@@ -39,17 +39,15 @@ static int __init init_mod(void)
 {
 	int retval;
 
-	const u32 rpi_gpio_base = 0x3f000000 + 0x200000;//レジスタのベース+ GPIOのオフセット
-	const u8 gpio_size = 0xC0;
-
 	const u32 led = 25;
-	const u32 index = 0 + led/10;//0: GPFSEL0, 25: GPIO NO
-	const u32 shift = (led%10)*3;
-	const u32 mask = ~(0x7 << shift);
+	const u32 index = led/10;//GPFSEL2
+	const u32 shift = (led%10)*3;//15bit
+	const u32 mask = ~(0x7 << shift);//11111111111111000111111111111111
 
-	gpio_base = ioremap_nocache(rpi_gpio_base, gpio_size); //0xC0: gpio size
-	gpio_base[index] = (gpio_base[index] & mask) | (0x1 << shift);//0x1: GPF_OUTPUT
-
+	gpio_base = ioremap_nocache(0x3f200000, 0xA0); //0x3f..:base address, 0xA0: region to map
+	gpio_base[index] = (gpio_base[index] & mask) | (0x1 << shift);//001: output flag
+	//11111111111111001111111111111111
+	
 	retval =  alloc_chrdev_region(&dev, 0, 1, "myled");
 	if(retval < 0){
 		printk(KERN_ERR "alloc_chrdev_region failed.\n");
@@ -58,6 +56,7 @@ static int __init init_mod(void)
 	printk(KERN_INFO "%s is loaded. major:%d\n",__FILE__,MAJOR(dev));
 
 	cdev_init(&cdv, &led_fops);
+	cdv.owner = THIS_MODULE;
 	retval = cdev_add(&cdv, dev, 1);
 	if(retval < 0){
 		printk(KERN_ERR "cdev_add failed. major:%d, minor:%d",MAJOR(dev),MINOR(dev));
